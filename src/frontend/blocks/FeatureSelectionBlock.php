@@ -98,9 +98,7 @@ class FeatureSelectionBlock extends FormBlock
         $output .= '</div>';*/
       //  $featureList = isset($selected['Features']) ?$selected['Features']:[]; //$this->getArticlePrices();      
       //  $featureList = isset($model->Features) ? $model->Features:[]; 
-       echo "<pre>";
-      // print_r($model->attributes);
-      echo "</pre>";
+    
         foreach ($model->Features as $id => $feature) {           
                     $fId = $id;
                     $fName = $feature['name'];                 
