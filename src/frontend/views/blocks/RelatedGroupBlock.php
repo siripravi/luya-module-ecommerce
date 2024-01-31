@@ -18,7 +18,7 @@ $similar = $this->extraValue('elements')['similar'];
 /*if ($this->extraValue('elements')['dataProvider']) {
     echo ListView::widget([
         'dataProvider' => $this->extraValue('elements')['dataProvider'],
-        'itemView' => '@catalog/views/blocks/_item',
+        'itemView' => '@ecommerce/views/blocks/_item',
         'layout' => '<div class="row featured">{items}</div>',
         'emptyTextOptions' => [
             'class' => 'alert alert-danger',

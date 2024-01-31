@@ -269,7 +269,7 @@ use yii\widgets\ListView;
 //echo Yii::$app->controller->module->getViewPath();die;
 echo ListView::widget([
     'dataProvider' => $this->extraValue('elements')['dataProvider'],
-    'itemView' => '@catalog/views/blocks/_item',
+    'itemView' => '@ecommerce/views/blocks/_item',
     'layout' => '
 		 <div class="row featured">{items}</div>',
     'emptyTextOptions' => [

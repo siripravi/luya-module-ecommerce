@@ -26,7 +26,7 @@ use yii\helpers\Url;
                 <div class="col-lg-4 col-md-6 shadow-sm p-3 mb-3 shadow p-3 bg-body-tertiary rounded">
                     <div class="card h-100">
                     <div class="badge bg-dark text-white position-absolute" style="top: 0.5rem; right: 0.5rem"><?= $element->slug; ?></div>
-                        <a data-category="<?= $element->slug; ?>" href="<?= Url::to(['/catalog/category/view', 'slug'=>$element->slug]); ?>">
+                        <a data-category="<?= $element->slug; ?>" href="<?= Url::to(['/ecommerce/category/view', 'slug'=>$element->slug]); ?>">
                             <!--<img class="card-img-top" src="<= Yii::$app->storage->getImage($element->cover_image_id)->source ?>" alt="">-->
                             <img src="<?= Yii::$app->storage->getImage($element->cover_image_id)->applyFilter(MediumCrop::identifier())->source; ?>" class="card-img-top object-fit-cover" />
                         </a>

@@ -23,7 +23,7 @@ if ($page->parent) {
         'url' => $url_active,
     ];
 } else {
-    $url_active = Url::to(['/catalog/category/view', 'slug' => $page->slug]);
+    $url_active = Url::to(['/ecommerce/category/view', 'slug' => $page->slug]);
 }
 
 $this->params['breadcrumbs'][] = $page->name;
