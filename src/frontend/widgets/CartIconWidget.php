@@ -23,7 +23,7 @@ class CartIconWidget extends Widget
 
     public $options = [];
 
-    public $urlCart = ['/catalog/default/cart'];
+    public $urlCart = ['/ecommerce/default/cart'];
 
     public $iconOptions = ['class' => 'fas fa-shopping-cart'];
 
@@ -84,7 +84,7 @@ class CartIconWidget extends Widget
 
     private function registerClientScript()
     {
-        $url = Url::to(['/catalog/default/icon']);
+        $url = Url::to(['/ecommerce/default/icon']);
         $js = <<<JS
         function reloadCartIcon() {
             $.get('{$url}', function(data) {
