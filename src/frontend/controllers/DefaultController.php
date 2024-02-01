@@ -331,7 +331,7 @@ class DefaultController extends BaseController
                     }
                     $products[] = [
                         'imageUrl' => $image,
-                        'url' => Url::to(['/catalog/product/index', 'slug' => $product->product->slug], 'https'),
+                        'url' => Url::to(['/ecommerce/product/index', 'slug' => $product->product->slug], 'https'),
                         'name' => (string)$order->cartItemName[$product->id],
                         'cost' => (string)$order->cartItemPrice[$product->id],
                         'quantity' => (string)$order->cartItemCount[$product->id],
