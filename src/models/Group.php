@@ -34,6 +34,8 @@ use app\components\Page;
 class Group extends NgRestModel
 {
     use SortableTrait;
+
+    private  $_imageSrc;
     public $adminFeatures = [];
     /**
      * @inheritdoc
@@ -108,7 +110,7 @@ class Group extends NgRestModel
             [['slug'], 'required'],
             [['text', 'name'], 'string'],
             [['slug', 'teaser'], 'string', 'max' => 255],
-            [['adminFeatures'], 'safe'],
+            [['adminFeatures', 'imageSrc'], 'safe'],
         ];
     }
 
@@ -121,6 +123,7 @@ class Group extends NgRestModel
             // 'parent_id' => ['selectArray', 'data' =>  self::getList(1)], // [1 => 'Male', 2 => 'Female']
             'parent_id' => ['selectModel', 'modelClass' => Group::class, 'valueField' => 'id', 'labelField' => 'name'],
             'name'      => 'text',
+            'image_src' => 'text',
             'slug' => 'text',
             'cover_image_id' => 'image',
             //'images_list' => 'imageArray',
@@ -233,17 +236,37 @@ class Group extends NgRestModel
     {
         return $this->hasMany(Group::class, ['parent_id' => 'id']);
     }
+    public function setImageSrc($src)
+    {
+        $this->_imageSrc =  $src;
+    }
+    public function getImageSrc()
+    {
+
+        if ($this->_imageSrc === null) {
+            $this->setImageSrc(
+                Yii::$app->storage->getImage($this->cover_image_id)
+            );
+        }
+        return $this->_imageSrc;
+    }
 
     public static function getList($enabled)
     {
         return ArrayHelper::map(self::find()->andFilterWhere(['enabled' => $enabled])->orderBy('position')->all(), 'id', 'name');
     }
 
-
+    public function fields(){
+        $fields = parent::fields();
+        return array_merge( $fields ,['imageSrc']);
+    }
     public static function getElements()
     {
         $categories = Group::getMain(); // !Yii::$app->cache->exists('_categories-' . Yii::$app->language) ? Group::getMain() : [];
         //$categories = Group::getMain();
+        foreach ($categories as $cat) {
+            $cat->imageSrc = Yii::$app->storage->getImage($cat->cover_image_id);
+        }
         $query = Product::find();
         $query->joinWith(['groups']);
         $query->andWhere(['catalog_product.enabled' => true]);

@@ -7,7 +7,7 @@ use siripravi\ecommerce\models\Article;
 use siripravi\ecommerce\models\Product;
 use siripravi\ecommerce\models\Feature;
 use siripravi\shopcart\models\OrderForm;
-use app\blocks\FormBlock;
+use siripravi\ecommerce\frontend\blocks\FormBlock;
 use luya\helpers\ArrayHelper;
 use yii\helpers\Html;
 use keygenqt\jsonForm\JsonForm;
