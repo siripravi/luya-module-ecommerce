@@ -245,7 +245,7 @@ class Group extends NgRestModel
 
         if ($this->_imageSrc === null) {
             $this->setImageSrc(
-                Yii::$app->storage->getImage($this->cover_image_id)
+                Yii::$app->storage->getImage($this->cover_image_id)->applyFilter('thumbnail')
             );
         }
         return $this->_imageSrc;
