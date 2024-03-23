@@ -260,7 +260,7 @@ class DefaultController extends BaseController
         }
         
         $provider = new ActiveDataProvider([
-            'query' => $model->getArticles()->andWhere(['enabled' => 1]),
+            'query' => $model->product->getArticles()->andWhere(['enabled' => 1]),
             'sort' => [
                 'defaultOrder' => $this->module->categoryArticleDefaultOrder,
             ],

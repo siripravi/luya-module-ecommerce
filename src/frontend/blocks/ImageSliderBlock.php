@@ -7,7 +7,7 @@ use siripravi\ecommerce\models\Article;
 use siripravi\ecommerce\models\Product;
 use siripravi\ecommerce\models\Feature;
 
-use app\blocks\FormBlock;
+use siripravi\ecommerce\frontend\blocks\FormBlock;
 use luya\admin\filters\MediumCrop;
 use luya\admin\filters\LargeCrop;
 use luya\helpers\ArrayHelper;

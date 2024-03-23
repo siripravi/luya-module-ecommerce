@@ -19,7 +19,7 @@ use frontend\models\Search;
  */
 class BaseController extends \luya\cms\frontend\base\Controller
 {
-    public $layout = '@app/themes/cakeBaker/views/layouts/detail';
+   // public $layout = '@app/themes/cakeBaker/views/layouts/main';
     public $secClass = "container my-2 my-md-3";
 
     public $bannerTitle = "Some Title";
