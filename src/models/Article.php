@@ -36,6 +36,7 @@ class Article extends NgRestModel
 {
     
     private $_price;
+    private  $_imageSrc;
     private $_currency;
 
     public $adminFeatures = [];
@@ -220,6 +221,20 @@ class Article extends NgRestModel
         return $this->product->groups;
     }
 
+    public function setImageSrc($src)
+    {
+        $this->_imageSrc =  $src;
+    }
+    public function getImageSrc()
+    {
+
+        if ($this->_imageSrc === null) {
+            $this->setImageSrc(
+                Yii::$app->storage->getImage($this->cover_image_id)->applyFilter('thumbnail')
+            );
+        }
+        return $this->_imageSrc;
+    }
     public function getPrices()
     {
         return $this->hasMany(ArticlePrice::class, ['article_id' => 'id']);

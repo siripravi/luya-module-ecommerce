@@ -3,7 +3,7 @@ namespace siripravi\ecommerce\models;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use yii\db\Query;
-
+use yii;
 /**
  * ProductFilter represents the model behind the search form about `admin\products\models\Product`.
  */
@@ -86,8 +86,9 @@ class ProductFilter extends \siripravi\ecommerce\frontend\components\Product
                 ],
             ],
         ]);
-
-        return $dataProvider;
+       
+       return $dataProvider;
+      // return $query;
     }
 
     public function getGroups()

@@ -32,7 +32,7 @@ class Product extends NgRestModel
      * @inheritdoc
      */
     //public $i18n = ['name','slug', 'view'];
-
+  private $_imageSrc;
     /**
      * @var array
      */
@@ -121,7 +121,7 @@ class Product extends NgRestModel
             [['brand_id', 'created_at', 'updated_at', 'price_from', 'cover_image_id', 'position', 'enabled'], 'integer'],
             [['name', 'slug', 'view', 'text'], 'string', 'max' => 255],
             [['adminGroups'], 'safe'],
-            [['adminRelated'], 'safe'],
+            [['adminRelated','imageSrc'], 'safe'],
             [['group_ids'], 'each', 'rule' => ['integer']],
             [['related_ids'], 'each', 'rule' => ['integer']]
 
@@ -184,7 +184,7 @@ class Product extends NgRestModel
 
     public function extraFields()
     {
-        return ['adminGroups', 'adminRelated'];  //adminSets
+        return ['adminGroups', 'adminRelated', 'imageSrc'];  //adminSets
     }
 
     public function getArticles()
@@ -198,8 +198,7 @@ class Product extends NgRestModel
         return $this->hasMany(Group::class, ['id' => 'group_id'])->viaTable(ProductGroupRef::tableName(), ['product_id' => 'id']);
     }
 
-
-    /**
+        /**
      * @return Article
      */
     public function getBrands()
@@ -234,6 +233,21 @@ class Product extends NgRestModel
         }
     }
 
+    public function setImageSrc($src)
+    {
+        $this->_imageSrc =  $src;
+    }
+    public function getImageSrc()
+    {
+
+        if ($this->_imageSrc === null) {
+            $this->setImageSrc(
+                Yii::$app->storage->getImage($this->cover_image_id)->applyFilter('thumbnail')
+            );
+        }
+        return $this->_imageSrc;
+    }
+
     public static function viewPage($id)
     {
          if (is_numeric($id)) {
@@ -260,5 +274,14 @@ class Product extends NgRestModel
             ]);
         }*/
         return $page;
+    }
+
+    public function afterFind(){
+
+        parent::afterFind();
+    
+        if(isset($this->cover_image_id)){
+            $this->imageSrc = Yii::$app->storage->getImage($this->cover_image_id);
+        }
     }
 }

@@ -34,16 +34,30 @@ class EcommerceApiController extends \luya\headless\cms\api\BaseController
         //print_r($this->view->params['category_ids']);die;
         $searchModel = new ProductFilter(['category_id' => $page->id, 'enabled' => true]);
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+       $pImages = [];
+        foreach ($dataProvider->getModels() as $k => $dap) {           // var_dump(get_class($dap));
+          // var_dump($dap->cover_image_id);
+            $pImages[] =[
+                $dap->cover_image_id => Yii::$app->storage->getImage($dap->cover_image_id)
+            ];
+        //    $dap1[] = $dap;
+           // var_dump($dap->cover_image_id);
+      }
+   //   $dataProvider->setModels($dap1);
+       // echo "<pre>";
+       // print_r($dataProvider->getModels()); die;
 
         $features = Feature::getFilterList(true, [$searchModel->category_id]);
+
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        return 
-      [
-            'page' => $page,
-            'categories' => $page->categories,
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-            'features' => $features,
-        ];
+        return
+            [
+                'page' => $page,
+                'categories' => $page->categories,
+                'searchModel' => $searchModel,
+                'dataProvider' => $dataProvider,
+                'features' => $features,
+                'images' => $pImages
+            ];
     }
 }
