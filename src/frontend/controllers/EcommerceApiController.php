@@ -34,12 +34,16 @@ class EcommerceApiController extends \luya\headless\cms\api\BaseController
         //print_r($this->view->params['category_ids']);die;
         $searchModel = new ProductFilter(['category_id' => $page->id, 'enabled' => true]);
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-       $pImages = [];
+       $prodData = [];  $arr1 = [];
         foreach ($dataProvider->getModels() as $k => $dap) {           // var_dump(get_class($dap));
           // var_dump($dap->cover_image_id);
-            $pImages[] =[
-                $dap->cover_image_id => Yii::$app->storage->getImage($dap->cover_image_id)
-            ];
+            $arr1 = $dap->attributes;
+            $arr1['imageSrc'] = Yii::$app->storage->getImage($dap->cover_image_id);
+            $prodData[] = $arr1;
+           // $pImages[] =[
+            //   = 
+           // ];
+          //  $dataProvider->getModels()[$k]->imageSrc = Yii::$app->storage->getImage($dap->cover_image_id);
         //    $dap1[] = $dap;
            // var_dump($dap->cover_image_id);
       }
@@ -55,9 +59,9 @@ class EcommerceApiController extends \luya\headless\cms\api\BaseController
                 'page' => $page,
                 'categories' => $page->categories,
                 'searchModel' => $searchModel,
-                'dataProvider' => $dataProvider,
+                'dataProvider' => $prodData,  //$dataProvider,
                 'features' => $features,
-                'images' => $pImages
+              //  'images' => $pImages
             ];
     }
 }
