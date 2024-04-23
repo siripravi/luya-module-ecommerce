@@ -1,0 +1,1 @@
+<?= siripravi\ecommerce\widgets\CartWidget::widget();  ?>
