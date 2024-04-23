@@ -4,7 +4,7 @@ namespace siripravi\ecommerce\admin\assets;
 
 use luya\web\Asset;
 
-class CatalogAdminAsset extends Asset
+class EcommerceAdminAsset extends Asset
 {
     public $sourcePath = '@ecommerceadmin/resources';
 
