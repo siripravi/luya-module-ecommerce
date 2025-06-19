@@ -147,7 +147,7 @@ class Article extends NgRestModel
             'price' => 'decimal',
             'price_old' => 'decimal',
             'currency_id' => ['selectModel', 'modelClass' => Currency::class, 'valueField' => 'id', 'labelField' => 'name'],
-            'unit_id' => 'number',
+            'unit_id' => ['selectModel', 'modelClass' => Unit::class, 'valueField' => 'id', 'labelField' => 'name'],
             'available' => 'number',
             'image_id' => 'image',
             'created_at' => 'text',
@@ -187,7 +187,7 @@ class Article extends NgRestModel
     {
         return [
             ['list', ['name', 'product_id', 'code', 'price', 'image_id', 'created_at', 'updated_at', 'enabled']],
-            [['create', 'update'], ['name', 'available', 'price', 'price_old', 'currency_id', 'product_id', 'album_id', 'code', 'values', 'image_id', 'text', 'enabled']],
+            [['create', 'update'], ['name', 'available', 'price', 'price_old', 'currency_id', 'unit_id','product_id', 'album_id', 'code', 'values', 'image_id', 'text', 'enabled']],
             ['delete', false],
         ];
     }
