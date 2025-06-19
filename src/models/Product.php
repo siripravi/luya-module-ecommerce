@@ -118,7 +118,7 @@ class Product extends NgRestModel
     {
         return [
             [['slug'], 'required'],
-            [['brand_id', 'created_at', 'updated_at', 'price_from', 'cover_image_id', 'position', 'enabled'], 'integer'],
+            [['brand_id',  'price_from', 'cover_image_id', 'position', 'enabled'], 'integer'],
             [['name', 'slug', 'view', 'text'], 'string', 'max' => 255],
             [['adminGroups'], 'safe'],
             [['adminRelated'], 'safe'],
@@ -140,8 +140,8 @@ class Product extends NgRestModel
             'brand_id'  =>  ['class' => SelectRelationActiveQuery::class, 'query' => $this->getBrands(), 'labelField' => ['name'], 'asyncList' => true],
             //'brand_id'      => ['selectModel', 'modelClass' => Brand::class],
             'cover_image_id' => 'image',
-            'created_at'    => 'number',
-            'updated_at'    => 'number',
+            'created_at'    => 'text',
+            'updated_at'    => 'text',
             'price_from'    => 'number',
             'view'          => 'text',
             'position'      => 'number',

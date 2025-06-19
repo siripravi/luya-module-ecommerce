@@ -148,8 +148,8 @@ class Article extends NgRestModel
             'unit_id' => 'number',
             'available' => 'number',
             'image_id' => 'image',
-            'created_at' => 'number',
-            'updated_at' => 'number',
+            'created_at' => 'text',
+            'updated_at' => 'text',
             'position' => 'number',
             'enabled' => 'number',
         ];

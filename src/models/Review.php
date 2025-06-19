@@ -60,7 +60,7 @@ class Review extends ActiveRecord
         return [
             [['name', 'rating'], 'required'],
             [['text', 'answer'], 'string'],
-            [['rating', 'created_at', 'position', 'status', 'product_id'], 'integer'],
+            [['rating',  'position', 'status', 'product_id'], 'integer'],
             [['name', 'email'], 'string', 'max' => 255],
             ['email', 'email'],
             ['status', 'default', 'value' => self::STATUS_NEW],

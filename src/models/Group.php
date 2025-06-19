@@ -104,7 +104,7 @@ class Group extends NgRestModel
     public function rules()
     {
         return [
-            [['parent_id', 'cover_image_id', 'created_at', 'updated_at', 'main', 'position', 'enabled'], 'integer'],
+            [['parent_id', 'cover_image_id', 'main', 'position', 'enabled'], 'integer'],
             [['slug'], 'required'],
             [['text', 'name'], 'string'],
             [['slug', 'teaser'], 'string', 'max' => 255],
@@ -126,8 +126,8 @@ class Group extends NgRestModel
             //'images_list' => 'imageArray',
             'teaser' => 'text',
             'text' => 'textarea',
-            'created_at' => 'number',
-            'updated_at' => 'number',
+            'created_at' => 'text',
+            'updated_at' => 'text',
             'main' => 'number',
             'position' => 'number',
             'enabled' => ['toggleStatus', 'initValue' => 0],
