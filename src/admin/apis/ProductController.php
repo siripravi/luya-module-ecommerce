@@ -34,7 +34,7 @@ class ProductController extends \luya\admin\ngrest\base\Api
         $value_ids = ArticleValueRef::getList($id);
 
         if ($product->group_ids)
-            $features = Feature::getObjectList(true, $product->group_ids);
+            $features = Feature::getList(true, $product->group_ids);
         else
             $features = [];
 

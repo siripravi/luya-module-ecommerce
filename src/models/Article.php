@@ -105,8 +105,8 @@ class Article extends NgRestModel
     public function rules()
     {
         return [
-            [['name', 'product_id'], 'required'],
-            [['product_id', 'unit_id', 'available', 'image_id', 'currency_id','album_id', 'created_at', 'updated_at', 'position', 'enabled'], 'integer'],
+            [['name', 'product_id','currency_id','unit_id'], 'required'],
+            [['product_id', 'unit_id', 'available', 'image_id', 'currency_id','album_id', 'position', 'enabled'], 'integer'],
             [['price', 'price_old'], 'number'],
             [['code'], 'string', 'max' => 255],
             [['id', 'values', 'text'], 'safe'],
