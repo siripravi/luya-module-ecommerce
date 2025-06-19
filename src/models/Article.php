@@ -34,7 +34,7 @@ use luya\helpers\Url;
  */
 class Article extends NgRestModel
 {
-    
+
     private $_price;
     private $_currency;
 
@@ -94,7 +94,7 @@ class Article extends NgRestModel
             'available' => Yii::t('app', 'Available'),
             'image_id' => Yii::t('app', 'Cover Image'),
             'created_at' => Yii::t('app', 'Created At'),
-            'updated_at' => Yii::t('app', 'Updated At'),           
+            'updated_at' => Yii::t('app', 'Updated At'),
             'enabled' => Yii::t('app', 'Enabled'),
         ];
     }
@@ -125,7 +125,9 @@ class Article extends NgRestModel
     {
         return [
             [
-                'class' => \siripravi\ecommerce\admin\aws\TestActiveWindow::class, 'label' => 'Window', 'icon' => 'extension',
+                'class' => \siripravi\ecommerce\admin\aws\TestActiveWindow::class,
+                'label' => 'Window',
+                'icon' => 'extension',
                 //'id' => $this->id
             ],
         ];
@@ -144,7 +146,7 @@ class Article extends NgRestModel
             'text' => 'textarea',
             'price' => 'decimal',
             'price_old' => 'decimal',
-            //'currency_id' => 'number',
+            'currency_id' => ['selectModel', 'modelClass' => Currency::class, 'valueField' => 'id', 'labelField' => 'name'],
             'unit_id' => 'number',
             'available' => 'number',
             'image_id' => 'image',
@@ -185,7 +187,7 @@ class Article extends NgRestModel
     {
         return [
             ['list', ['name', 'product_id', 'code', 'price', 'image_id', 'created_at', 'updated_at', 'enabled']],
-            [['create', 'update'], ['name', 'available', 'price', 'price_old', 'product_id', 'album_id', 'code', 'values', 'image_id', 'text', 'enabled']],
+            [['create', 'update'], ['name', 'available', 'price', 'price_old', 'currency_id', 'product_id', 'album_id', 'code', 'values', 'image_id', 'text', 'enabled']],
             ['delete', false],
         ];
     }
@@ -303,7 +305,7 @@ class Article extends NgRestModel
         }
         return $data;
     }
-  /*  public function getPricesDef($feature_id = null)
+    /*  public function getPricesDef($feature_id = null)
     {
         // $article = self::findOne($article_id);
         $curDef = $this->getCurrencyDef();
@@ -358,7 +360,7 @@ class Article extends NgRestModel
         }
     }*/
 
- /*   public function getCurrencyDef()
+    /*   public function getCurrencyDef()
     {
         if (empty($this->_currency)) {
             $this->_currency = Currency::findOne(['code' => 'INR']);  //Yii::$app->params['currency_id']);
@@ -389,6 +391,4 @@ class Article extends NgRestModel
     {
         return Url::toRoute(['/product-info', 'id' => $this->id, 'title' => Inflector::slug($this->name)]);
     }
-
- 
 }
