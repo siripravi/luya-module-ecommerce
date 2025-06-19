@@ -4,7 +4,7 @@ namespace siripravi\ecommerce\admin\aws;
 
 class TestActiveWindow extends \luya\admin\ngrest\base\ActiveWindow
 {
-    public $module = 'catalogadmin';
+    public $module = 'ecommerceadmin';
 
     public function index()
     {

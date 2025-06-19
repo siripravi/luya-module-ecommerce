@@ -47,6 +47,6 @@ zaa.directive("articleFeatures", function () {
         };
       },
     ],
-    templateUrl: "catalogadmin/article/article-features",
+    templateUrl: "ecommerceadmin/article/article-features",
   };
 });
