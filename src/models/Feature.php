@@ -31,7 +31,7 @@ class Feature extends NgRestModel
 {
 
     public $adminGroups = [];
-
+  
     /**
      * @inheritdoc
      */
@@ -99,12 +99,22 @@ class Feature extends NgRestModel
         ];
     }
 
+    public function getModles(): ActiveQuery
+    {
+        return $this
+            ->hasMany('model_table', ['id' => 'relation_id'])
+            ->viaTable('catalog_feature_group_ref', ['owner_id' => 'id'])
+            ->leftJoin('catalog_feature_group_ref via', 'via.relation_id = id')
+            ->orderBy([
+                'via.priority' => SORT_ASC,
+            ]);
+    }
     public function getGroups()
     {
-        return $this->hasMany(Group::class, ['id' => 'group_id'])->viaTable('catalog_feature_group_ref', ['feature_id' => 'id']);
+        return $this->hasMany(Group::class, ['id' => 'group_id'])
+            ->viaTable('catalog_feature_group_ref', ['feature_id' => 'id']);
     }
-
-
+    
     /**
      * @return \yii\db\ActiveQuery
      */
@@ -119,7 +129,9 @@ class Feature extends NgRestModel
     public function getArticles()
     {
         // TODO: value_id != feature_id
-        return $this->hasMany(Article::class, ['id' => 'article_id'])->viaTable('catalog_article_value_ref', ['value_id' => 'id']);
+        return $this
+        ->hasMany(Article::class, ['id' => 'article_id'])
+        ->viaTable('catalog_article_value_ref', ['value_id' => 'id']);
     }
 
     public function getFeatureValues()
@@ -213,17 +225,25 @@ class Feature extends NgRestModel
      * @param array $category_ids
      * @return array
      */
-    public static function getList($enabled, $category_ids)
+       public static function getList($enabled, $category_ids)
     {
-        return ArrayHelper::map(self::find()->joinWith(['groups'])->andFilterWhere(['catalog_feature.enabled' => $enabled])->andFilterWhere(['group_id' => $category_ids])->orderBy('position')->all(), 'id', 'name');
+        return ArrayHelper::map(
+            self::find()
+            ->joinWith(['groups'])
+            ->andFilterWhere(['catalog_feature.enabled' => $enabled])
+            ->andFilterWhere(['group_id' => $category_ids])
+            ->orderBy('position')->all(), 
+            'id', 
+            'name'
+        );
     }
-
+  
     /**
      * @param boolean|null $enabled
      * @param array $category_ids
      * @return @return MultilingualQuery|\yii\db\ActiveQuery
      */
-   
+
 
     /**
      * @return \yii\db\ActiveQuery

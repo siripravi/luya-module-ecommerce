@@ -20,42 +20,39 @@ class ProductController extends \luya\admin\ngrest\base\Api
      */
     public $modelClass = 'siripravi\ecommerce\models\Product';
 
-    /**
-     *
-     * @param unknown $id
-     * @return unknown
-     */
     public function actionFeatures($id)
-    {
-        $features = [];
-        $value_ids = [];
-        $model = Article::find(['id' => $id])->one();
-        $product = $model->product;
-        $value_ids = ArticleValueRef::getList($id);
-
-        if ($product->group_ids)
-            $features = Feature::getList(true, $product->group_ids);
-        else
-            $features = [];
-
-        $data = [];
-        $featureVals = [];
-
-        foreach ($features as $set) {
-
-            $featureVals[] = [
-                'set' => $set,
-                'attributes' => Value::getList($set->id),
-                'preSel'  => $value_ids
-            ];
-        }
-        $data['fVals'] = $featureVals;
-        $data['preSel'] = array_values($value_ids);
-        $data['selected'] = $this->setAttributes($value_ids, $model->getValues());
-        return $data;
+{
+    $model = Article::findOne($id);
+    if (!$model) {
+        throw new \yii\web\NotFoundHttpException("Article not found for ID $id.");
     }
 
-    public function setAttributes($value_ids, $featurs)
+    $product = $model->product;
+    $value_ids = ArticleValueRef::getList($id);
+
+    $features = [];
+    if (!empty($product) && !empty($product->group_ids)) {
+        $features = Feature::getList(true, $product->group_ids);
+    }
+
+    $featureVals = [];
+\yii::debug($features, __METHOD__);
+    foreach ($features as $key => $set) {
+        $featureVals[] = [
+            'set' => $set,
+            'attributes' => Value::getList($key),
+            'preSel' => $value_ids,
+        ];
+    }
+
+    return [
+        'fVals' => $featureVals,
+        'preSel' => array_values($value_ids),
+        'selected' => $this->mapSelectedAttributes($value_ids, $model->getValues()),
+    ];
+}
+
+    public function mapSelectedAttributes($value_ids, $featurs)
     {
         $data = [];
         foreach ($featurs as $key => $value) {

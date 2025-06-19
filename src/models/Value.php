@@ -101,40 +101,51 @@ class Value extends NgRestModel
     {
         return $this->hasMany(Article::class, ['id' => 'article_id'])->viaTable('catalog_article_value_ref', ['value_id' => 'id']);
     }
-
     /**
-     * @param integer|null $feature_id
-     * @return array
+     * Get value list by feature ID.
+     *
+     * @param integer|null $feature_id If null, all values are returned.
+     * @return array ID => name mapping
      */
-    public static function getList($feature_id)
+    public static function getList($feature_id = null)
     {
-        $values = self::find()->andFilterWhere(['feature_id' => $feature_id])->orderBy('position')->all();
+        $query = self::find()->orderBy('position');
+
+        if ($feature_id !== null) {
+            $query->andWhere(['feature_id' => $feature_id]);
+        }
+
+        $values = $query->all();
 
         return ArrayHelper::map($values, 'id', 'name');
     }
 
+
     /**
      * @param integer|null $feature_id
      * @return array
      */
-    public static function getValueList($feature,$value_ids)
+    public static function getValueList($feature, $value_ids)
     {
-        $values = self::find()->andFilterWhere(['feature_id' => $feature])->andFilterWhere(['id'=>$value_ids])->orderBy('position')->all();
-       
-       ArrayHelper::map($values, 'id', 'name');
-       return ArrayHelper::map($values, 'id', 
-        function($element){
-              return([
-               //  'feature_id'=>$element['feature_id'],
-                'name' => $element['name'],
-                'position' => $element['position'],
-                'currency_id' => '',
-                'qty' => '',
-                'unit_id' => '',
-                'price' => ''
-              ]);
-            } ,'feature_id');              
- 
+        $values = self::find()->andFilterWhere(['feature_id' => $feature])->andFilterWhere(['id' => $value_ids])->orderBy('position')->all();
+
+        ArrayHelper::map($values, 'id', 'name');
+        return ArrayHelper::map(
+            $values,
+            'id',
+            function ($element) {
+                return ([
+                    //  'feature_id'=>$element['feature_id'],
+                    'name' => $element['name'],
+                    'position' => $element['position'],
+                    'currency_id' => '',
+                    'qty' => '',
+                    'unit_id' => '',
+                    'price' => ''
+                ]);
+            },
+            'feature_id'
+        );
     }
 
     public static function getListEx($feature_id, $group_id)
