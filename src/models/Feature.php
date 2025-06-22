@@ -7,11 +7,6 @@ use luya\admin\ngrest\base\NgRestModel;
 use luya\admin\ngrest\plugins\CheckboxRelationActiveQuery;
 use siripravi\ecommerce\admin\behaviors\ManyToManyBehavior;
 use yii\helpers\ArrayHelper;
-use yii\helpers\Json;
-use siripravi\ecommerce\models\Value;
-use luya\admin\ngrest\plugins\SelectArray;
-use luya\admin\base\TypesInterface;
-
 /**
  * Feature.
  * 
@@ -21,17 +16,12 @@ use luya\admin\base\TypesInterface;
  * @property string $name
  * @property integer $position
  * @property tinyint $enabled
- * @property integer $after
- * @property integer $type
- * @property string $input 
- * @property string $value_text
- * 
  */
 class Feature extends NgRestModel
 {
 
     public $adminGroups = [];
-  
+
     /**
      * @inheritdoc
      */
@@ -45,7 +35,7 @@ class Feature extends NgRestModel
     public function behaviors()
     {
         return [
-
+           
             [
                 'class' => ManyToManyBehavior::class,
                 'relations' => [
@@ -76,9 +66,7 @@ class Feature extends NgRestModel
             'name' => Yii::t('app', 'Name'),
             'position' => Yii::t('app', 'Position'),
             'enabled' => Yii::t('app', 'Enabled'),
-            'after' => Yii::t('app', 'After'),
             'adminGroups' => 'Categories',
-            'value_text' => Yii::t('app', 'Values'),
         ];
     }
 
@@ -88,32 +76,20 @@ class Feature extends NgRestModel
     public function rules()
     {
         return [
-            [['position', 'type', 'enabled'], 'integer'],
-            [['name', 'input', 'value_text'], 'string', 'max' => 255],
+            [['position', 'enabled'], 'integer'],
+            [['name'], 'string', 'max' => 255],
             [['adminGroups'], 'safe'],
-            [['after'], 'string', 'max' => 32],
-            [['input'], 'required'],
             [['group_ids'], 'each', 'rule' => ['integer']],
             [['article_ids'], 'each', 'rule' => ['integer']],
             [['filter_ids'], 'each', 'rule' => ['integer']]
         ];
     }
 
-    public function getModles(): ActiveQuery
-    {
-        return $this
-            ->hasMany('model_table', ['id' => 'relation_id'])
-            ->viaTable('catalog_feature_group_ref', ['owner_id' => 'id'])
-            ->leftJoin('catalog_feature_group_ref via', 'via.relation_id = id')
-            ->orderBy([
-                'via.priority' => SORT_ASC,
-            ]);
-    }
     public function getGroups()
     {
-        return $this->hasMany(Group::class, ['id' => 'group_id'])
-            ->viaTable('catalog_feature_group_ref', ['feature_id' => 'id']);
+        return $this->hasMany(Group::class, ['id' => 'group_id'])->viaTable('catalog_feature_group_ref', ['feature_id' => 'id']);
     }
+
     
     /**
      * @return \yii\db\ActiveQuery
@@ -129,9 +105,7 @@ class Feature extends NgRestModel
     public function getArticles()
     {
         // TODO: value_id != feature_id
-        return $this
-        ->hasMany(Article::class, ['id' => 'article_id'])
-        ->viaTable('catalog_article_value_ref', ['value_id' => 'id']);
+        return $this->hasMany(Article::class, ['id' => 'article_id'])->viaTable('catalog_article_value_ref', ['value_id' => 'id']);
     }
 
     public function getFeatureValues()
@@ -140,7 +114,7 @@ class Feature extends NgRestModel
         foreach ($this->getValues()->all() as $value) {
             $data[$value->feature_id][$value->id] = $value;
         }
-
+        
         return $data;
     }
 
@@ -150,19 +124,7 @@ class Feature extends NgRestModel
     public function ngRestAttributeTypes()
     {
         return [
-            'type' => [
-                'class' => SelectArray::class,
-                'data' => [1 => 'Integer', 2 => 'Boolean', 3  => 'String'],
-            ],
-            'input' => ['selectArray', 'data' => [
-                TypesInterface::TYPE_TEXT => 'text',
-                TypesInterface::TYPE_TEXTAREA => 'textarea',
-                TypesInterface::TYPE_CHECKBOX => 'checkbox',
-                TypesInterface::TYPE_SELECT => 'select',
-            ]],
-            'value_text' => 'html',
             'name' => 'text',
-            'after' => 'text',
             'position' => 'number',
             'enabled' => 'number',
         ];
@@ -176,16 +138,7 @@ class Feature extends NgRestModel
                 'query' => $this->getGroups(),
                 'labelField' => ['name'],
             ],
-        ];
-    }
-
-    public function fields()
-    {
-        $fields = parent::fields();
-        $fields['values_json'] = function ($model) {
-            return Json::decode($model->value_text);
-        };
-        return $fields;
+       ];
     }
 
     public function extraFields()
@@ -196,24 +149,16 @@ class Feature extends NgRestModel
     /**
      * @inheritdoc
      */
-    public function genericSearchFields()
-    {
-        return ['name', 'value_text'];
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function ngRestScopes()
     {
         return [
-            ['list', ['name', 'type', 'value_text', 'after', 'position', 'enabled']],
-            [['create', 'update'], ['name', 'input', 'type', 'value_text', 'after', 'adminGroups', 'position', 'enabled']],
+            ['list', ['name', 'position', 'enabled']],
+            [['create', 'update'], ['name', 'adminGroups','position', 'enabled']],
             ['delete', false],
         ];
     }
 
-    /* public function ngRestRelations()
+   /* public function ngRestRelations()
     {
         return [
            ['label' => 'Categories', 'targetModel' => FeatureGroupRef::class,'apiEndpoint' => FeatureGroupRef::ngRestApiEndpoint(), 'dataProvider' => $this->getGroups()],
@@ -225,25 +170,20 @@ class Feature extends NgRestModel
      * @param array $category_ids
      * @return array
      */
-       public static function getList($enabled, $category_ids)
+    public static function getList($enabled, $category_ids)
     {
-        return ArrayHelper::map(
-            self::find()
-            ->joinWith(['groups'])
-            ->andFilterWhere(['catalog_feature.enabled' => $enabled])
-            ->andFilterWhere(['group_id' => $category_ids])
-            ->orderBy('position')->all(), 
-            'id', 
-            'name'
-        );
+        return ArrayHelper::map(self::find()->joinWith(['groups'])->andFilterWhere(['catalog_feature.enabled' => $enabled])->andFilterWhere(['group_id' => $category_ids])->orderBy('position')->all(), 'id', 'name');
     }
-  
+
     /**
      * @param boolean|null $enabled
      * @param array $category_ids
      * @return @return MultilingualQuery|\yii\db\ActiveQuery
      */
-
+    public static function getObjectList($enabled, array $category_ids)
+    {
+        return self::find()->joinWith(['groups'])->andFilterWhere(['catalog_feature.enabled' => $enabled])->andFilterWhere(['group_id' => $category_ids])->orderBy('position')->all();
+    }
 
     /**
      * @return \yii\db\ActiveQuery
@@ -253,7 +193,7 @@ class Feature extends NgRestModel
         return $this->hasMany(Group::class, ['id' => 'group_id'])->viaTable('catalog_feature_filter', ['feature_id' => 'id']);
     }
 
-    /**
+     /**
      * @param boolean|null $enabled
      * @param array $category_ids
      * @return @return MultilingualQuery|\yii\db\ActiveQuery
@@ -262,4 +202,7 @@ class Feature extends NgRestModel
     {
         return self::find()->joinWith(['filters'])->andFilterWhere(['catalog_feature.enabled' => $enabled])->andFilterWhere(['group_id' => $category_ids])->orderBy('position')->all();
     }
+
+
+
 }

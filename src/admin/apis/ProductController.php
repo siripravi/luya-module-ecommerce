@@ -3,10 +3,13 @@
 namespace siripravi\ecommerce\admin\apis;
 
 use siripravi\ecommerce\models\Article;
+use siripravi\ecommerce\models\Product;
 use siripravi\ecommerce\models\Feature;
 use siripravi\ecommerce\models\Value;
 use siripravi\ecommerce\models\ArticleValueRef;
 use yii\helpers\JSON;
+use yii;
+use yii\helpers\ArrayHelper;
 
 /**
  * Product Controller.
@@ -20,39 +23,47 @@ class ProductController extends \luya\admin\ngrest\base\Api
      */
     public $modelClass = 'siripravi\ecommerce\models\Product';
 
+    /**
+     *
+     * @param unknown $id
+     * @return unknown
+     */
     public function actionFeatures($id)
-{
-    $model = Article::findOne($id);
-    if (!$model) {
-        throw new \yii\web\NotFoundHttpException("Article not found for ID $id.");
-    }
+    {
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
-    $product = $model->product;
-    $value_ids = ArticleValueRef::getList($id);
+        $features = [];
+        $value_ids = [];
 
-    $features = [];
-    if (!empty($product) && !empty($product->group_ids)) {
-        $features = Feature::getList(true, $product->group_ids);
-    }
+        $model = Article::findOne($id);
+        $product = $model->product;
+        $value_ids = ArticleValueRef::getList($id);
 
-    $featureVals = [];
-\yii::debug($features, __METHOD__);
-    foreach ($features as $key => $set) {
-        $featureVals[] = [
-            'set' => $set,
-            'attributes' => Value::getList($key),
-            'preSel' => $value_ids,
+        if ($product->group_ids) {
+            $features = Feature::getObjectList(true, $product->group_ids);
+        }
+
+        $featureVals = [];
+
+        foreach ($features as $set) {
+            $featureVals[] = [
+                'set' => $set->toArray(), // Or manually pick needed fields
+                'attributes' => Value::getList($set->id),
+                'preSel'  => $value_ids
+            ];
+        }
+
+        $data = [
+            'fVals' => $featureVals,
+            'preSel' => array_values($value_ids),
+            'selected' => $this->setAttributes($value_ids, $model->getValues())
         ];
+
+        return $data;
     }
 
-    return [
-        'fVals' => $featureVals,
-        'preSel' => array_values($value_ids),
-        'selected' => $this->mapSelectedAttributes($value_ids, $model->getValues()),
-    ];
-}
 
-    public function mapSelectedAttributes($value_ids, $featurs)
+    public function setAttributes($value_ids, $featurs)
     {
         $data = [];
         foreach ($featurs as $key => $value) {
@@ -60,11 +71,10 @@ class ProductController extends \luya\admin\ngrest\base\Api
             foreach ($keys as $k) {
                 if (in_array($k, $value_ids)) {
                     $data[$key][$k] = 1;
-                } else {
-                    $data[$key][$k] = 0;
                 }
             }
         }
+        // print_r($list);die;
         return $data;
     }
 }

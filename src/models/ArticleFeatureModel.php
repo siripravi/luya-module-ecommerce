@@ -3,7 +3,7 @@
 namespace siripravi\ecommerce\models;
 
 use luya\base\DynamicModel;
-use app\modules\shopcart\models\Cart;
+use siripravi\ecommerce\shopcart\models\Cart;
 use yii\helpers\ArrayHelper;
 use luya\helpers\StringHelper;
 

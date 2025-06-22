@@ -20,12 +20,12 @@ zaa.directive("estoreAttributes", function() {
 			});
 			
 			$scope.getArticleAttributesData = function(id) {
-				$http.get('admin/api-estore-product/attributes?id=' + id).then(function(r) {
+				$http.get('admin/api-catalog-product/attributes?id=' + id).then(function(r) {
 					$scope.data = r.data;
 				});
 			};
 			
 		}],
-		templateUrl: 'estoreadmin/article/article-attributes'
+		templateUrl: 'ecommerce/article/article-attributes'
 	}
 });

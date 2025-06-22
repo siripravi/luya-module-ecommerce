@@ -30,10 +30,11 @@ class ArticleController extends \luya\admin\ngrest\base\Api
         foreach ($model->getFeatures()->all() as $set) {
             $data[] = [
                 'set' => $set,
-                'attributes' => [], // $set->values,  
+               // 'attributes' => [], // $set->values,  
             ];
         }
-        //echo "<pre>"; print_r($data);die;
+      //  echo json_encode($data); die;
+       // echo "<pre>"; print_r($data);die;
         return $data;
     }
 

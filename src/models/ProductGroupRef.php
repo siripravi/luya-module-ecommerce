@@ -59,7 +59,8 @@ class ProductGroupRef extends NgRestModel
      */
     public function ngRestAttributeTypes()
     {
-        return [];
+        return [
+        ];
     }
 
     /**

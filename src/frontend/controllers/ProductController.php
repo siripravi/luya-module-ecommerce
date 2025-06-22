@@ -106,7 +106,7 @@ class ProductController extends BaseController
                 'value' => 0,
             ];
         }*/
-        $features = Feature::getObjectList(true, $model->group_ids);
+        $features = Feature::getList(true, $model->group_ids);
         // $features = Feature::getFilterList(true, [$searchModel->category_id]);
         return $this->render('container', [
             'model' => $model,

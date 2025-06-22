@@ -2,15 +2,17 @@
 
 namespace siripravi\ecommerce\models;
 
+use DateTime;
 use Yii;
-use yii\helpers\Inflector;
 use luya\admin\ngrest\base\NgRestModel;
 use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
 use siripravi\ecommerce\admin\plugins\ArticleFeaturesPlugin;
+use luya\admin\ngrest\plugins\CheckboxRelationActiveQuery;
+use luya\admin\ngrest\plugins\SelectRelationActiveQuery;
 use siripravi\ecommerce\admin\behaviors\ManyToManyBehavior;
 use luya\gallery\models\Album;
-use luya\helpers\Url;
+use luya\helpers\Html;
 
 /**
  * Article.
@@ -27,14 +29,13 @@ use luya\helpers\Url;
  * @property integer $unit_id
  * @property integer $available
  * @property integer $image_id
- * @property integer $created_at
- * @property integer $updated_at
+ * @property DateTime $created_at
+ * @property DateTime $updated_at
  * @property integer $position
  * @property tinyint $enabled
  */
 class Article extends NgRestModel
 {
-
     private $_price;
     private $_currency;
 
@@ -95,6 +96,7 @@ class Article extends NgRestModel
             'image_id' => Yii::t('app', 'Cover Image'),
             'created_at' => Yii::t('app', 'Created At'),
             'updated_at' => Yii::t('app', 'Updated At'),
+            //'position' => Yii::t('app', 'Position'),
             'enabled' => Yii::t('app', 'Enabled'),
         ];
     }
@@ -105,12 +107,13 @@ class Article extends NgRestModel
     public function rules()
     {
         return [
-            [['name', 'product_id','currency_id','unit_id'], 'required'],
-            [['product_id', 'unit_id', 'available', 'image_id', 'currency_id','album_id', 'position', 'enabled'], 'integer'],
-            [['price', 'price_old'], 'number'],
+            [['name', 'product_id'], 'required'],
+            [['product_id', 'unit_id', 'available', 'image_id', 'album_id',  'position', 'enabled'], 'integer'],
+            // [['price', 'price_old'], 'number'],
             [['code'], 'string', 'max' => 255],
-            [['id', 'values', 'text'], 'safe'],
+            [['values', 'text'], 'safe'],
             // [['adminFeatures'], 'safe'],
+
             [['value_ids'], 'each', 'rule' => ['integer']]
         ];
     }
@@ -120,13 +123,12 @@ class Article extends NgRestModel
         return ['adminFeatures','adminFeatureValues'];  //adminSets
     }*/
 
-
     public function ngRestActiveWindows()
     {
         return [
             [
                 'class' => \siripravi\ecommerce\admin\aws\TestActiveWindow::class,
-                'label' => 'Window',
+                'label' => 'My Window Alias',
                 'icon' => 'extension',
                 //'id' => $this->id
             ],
@@ -144,11 +146,11 @@ class Article extends NgRestModel
             'album_id' => ['selectModel', 'modelClass' => Album::class, 'valueField' => 'id', 'labelField' => 'title'],
             'code' => 'text',
             'text' => 'textarea',
-            'price' => 'decimal',
-            'price_old' => 'decimal',
-            'currency_id' => ['selectModel', 'modelClass' => Currency::class, 'valueField' => 'id', 'labelField' => 'name'],
-            'unit_id' => ['selectModel', 'modelClass' => Unit::class, 'valueField' => 'id', 'labelField' => 'name'],
-            'available' => 'number',
+            //'price' => 'decimal',
+            // 'price_old' => 'decimal',
+            //'currency_id' => 'number',
+            'unit_id' => 'number',
+            // 'available' => 'number',
             'image_id' => 'image',
             'created_at' => 'text',
             'updated_at' => 'text',
@@ -168,8 +170,7 @@ class Article extends NgRestModel
 
             'values' => [
                 'class' => ArticleFeaturesPlugin::class,
-            ],
-
+            ]
         ];
     }
 
@@ -186,8 +187,8 @@ class Article extends NgRestModel
     public function ngRestScopes()
     {
         return [
-            ['list', ['name', 'product_id', 'code', 'price', 'image_id', 'created_at', 'updated_at', 'enabled']],
-            [['create', 'update'], ['name', 'available', 'price', 'price_old', 'currency_id', 'unit_id','product_id', 'album_id', 'code', 'values', 'image_id', 'text', 'enabled']],
+            ['list', ['name', 'product_id', 'code', 'image_id', 'created_at', 'updated_at', 'enabled']],
+            [['create', 'update'], ['name', 'product_id', 'album_id', 'code', 'values',  'image_id', 'text', 'enabled']],
             ['delete', false],
         ];
     }
@@ -229,7 +230,7 @@ class Article extends NgRestModel
 
     public function getFeatures()
     {
-        return $this->hasMany(Feature::class, ['id' => 'feature_id'])->with('groups')->viaTable(FeatureGroupRef::tableName(), ['group_id' => 'id'])->orderBy(['position' => SORT_ASC]);
+        return $this->hasMany(Feature::class, ['id' => 'feature_id'])->with('groups')->viaTable(FeatureGroupRef::tableName(), ['group_id' => 'id']);
     }
 
     public function getAttributeValues()
@@ -245,7 +246,7 @@ class Article extends NgRestModel
         $product = $this->product;
         $value_ids = $this->value_ids;
         if ($product->group_ids)
-            $features = Feature::getFilterList(true, $product->group_ids);
+            $features = Feature::getObjectList(true, $product->group_ids);
         else
             $features = [];
 
@@ -261,6 +262,15 @@ class Article extends NgRestModel
 
     public function setValues($data)
     {
+        $data = array_values(array_filter($data, function ($entry) {
+            return is_array($entry) && !empty($entry);
+        }));
+       // print_r($data);
+      //  die;
+        if (isset($data[0]) && $data[0] === null) {
+            unset($data[0]);
+            $data = array_values($data); // reindex the array
+        }
         if ($this->isNewRecord) {
             $this->on(self::EVENT_AFTER_INSERT, function () use ($data) {
                 $this->updateSetValues($data);
@@ -272,9 +282,7 @@ class Article extends NgRestModel
 
     private function updateValues($data)
     {
-
         if (!empty($data)) {
-
             $this->unlinkAll('attributeValues', true);
 
             foreach ($data as $setId => $values) {
@@ -305,7 +313,8 @@ class Article extends NgRestModel
         }
         return $data;
     }
-    /*  public function getPricesDef($feature_id = null)
+
+    public function getPricesDef($feature_id = null)
     {
         // $article = self::findOne($article_id);
         $curDef = $this->getCurrencyDef();
@@ -336,17 +345,22 @@ class Article extends NgRestModel
                 if (isset($list[$price->value_id])) {
                     $priceList[$price->value_id] =
                         [
-                            'ftext'  => $list[$price->value_id],
-                            'price'  => $price->value_id."_".$price->price,
-                            'ptext' => $list[$price->value_id] . "-" . $pLabel
+                            'label'  => $list[$price->value_id],
+                            'price'  => $price->price,
+                            'priceLabel' => $list[$price->value_id] . "  -" . $pLabel
                         ];
                 }
             }
+            /*    if($price->currency_id = $curDef->id){
+              $rows[] = Html::tag("td",$price->qty." ".$price->unit->name. " @ ".$curDef->before.$price->price.$curDef->after." Only");
+           }*/
         }
-        return $priceList;
-    }*/
 
-    /*public function getPriceDef()
+        return $priceList;
+        // return Html::tag('tr', implode("\n", $rows));
+    }
+
+    public function getPriceDef()
     {
 
         if (empty($this->_currency)) {
@@ -358,37 +372,19 @@ class Article extends NgRestModel
         } else {
             round($this->price * $this->_currency->rate);
         }
-    }*/
+    }
 
-    /*   public function getCurrencyDef()
+    public function getCurrencyDef()
     {
+
         if (empty($this->_currency)) {
-            $this->_currency = Currency::findOne(['code' => 'INR']);  //Yii::$app->params['currency_id']);
+            $this->_currency = Currency::findOne(1);  //Yii::$app->params['currency_id']);
         }
 
         if (empty($this->_currency)) {
-            return $this->_currency;
+            return $this->currency;
         } else {
             return  $this->_currency;
         }
-    }*/
-
-    /**
-     * Get image object.
-     *
-     * @return \luya\admin\image\Item|boolean
-     */
-    public function getImage()
-    {
-        return Yii::$app->storage->getImage($this->image_id);
-    }
-
-    /**
-     *
-     * @return string
-     */
-    public function getDetailUrl()
-    {
-        return Url::toRoute(['/product-info', 'id' => $this->id, 'title' => Inflector::slug($this->name)]);
     }
 }
